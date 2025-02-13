@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Sprout - ร้านต้นไม้หลากหลายชนิด พร้อมการจัดส่งถึงบ้าน">
     <title>Plant Shop - Sprout</title>
     <style>
         /* Resetting margins and padding */
@@ -11,6 +12,9 @@
             padding: 0;
             font-family: Arial, sans-serif;
             background-color: #f7f7f7;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
         }
 
         /* Header styling */
@@ -43,7 +47,8 @@
         /* Top navigation bar */
         .top-nav {
             display: flex;
-            justify-content: center;
+            justify-content: space-between;
+            align-items: center;
             background-color: #ece2e2;
             padding: 10px;
         }
@@ -57,6 +62,17 @@
 
         .top-nav a:hover {
             color: #4CAF50;
+        }
+
+        .cart-count {
+            background-color: red;
+            color: white;
+            border-radius: 50%;
+            padding: 2px 8px;
+            font-size: 14px;
+            position: relative;
+            top: -10px;
+            right: 10px;
         }
 
         /* Search bar styling */
@@ -127,15 +143,40 @@
             margin: 10px 0;
         }
 
-        /* Footer (optional) */
+        .product-card button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .product-card button:hover {
+            background-color: #45a049;
+        }
+
+        /* Footer styling */
         footer {
             background-color: #4CAF50;
             color: white;
             text-align: center;
             padding: 10px;
-            position: fixed;
-            width: 100%;
-            bottom: 0;
+            position: static;
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .header-logo h1 {
+                font-size: 20px;
+            }
+            .product-grid {
+                grid-template-columns: 1fr;
+            }
+            .category-filter select {
+                width: 100%;
+            }
         }
     </style>
 </head>
@@ -144,13 +185,13 @@
     <!-- Header with Logo and Name -->
     <header>
         <div class="header-logo">
-            <img src="Pic/Logo.png" alt="Sprout Logo">
+            <img src="Pic/Logo.png" alt="โลโก้ Sprout">
             <h1>Sprout</h1>
         </div>
 
         <!-- Category Filter (Dropdown) on the right -->
         <div class="category-filter">
-            <select>
+            <select id="category-filter">
                 <option value="all">All Plants</option>
                 <option value="indoor">Indoor Plants</option>
                 <option value="outdoor">Outdoor Plants</option>
@@ -161,48 +202,69 @@
 
     <!-- Top navigation bar -->
     <div class="top-nav">
-        <a href="#">🛒</a> <!-- Shopping Cart Icon -->
         <a href="#">🌱</a> <!-- Plant Icon -->
         <a href="#">👤</a> <!-- Profile Icon -->
+        <a href="#" id="cart">🛒<span class="cart-count" id="cart-count">0</span></a>
     </div>
 
     <!-- Search Bar (under the top navigation) -->
     <div class="search-bar">
-        <input type="text" placeholder="ค้นหาต้นไม้...">
+        <input type="text" id="search-bar" placeholder="ค้นหาต้นไม้...">
     </div>
 
     <!-- Product Grid -->
-    <div class="product-grid">
-        <!-- Example of Product Card 1 -->
-        <div class="product-card">
-            <img src="Pic/gko80h-removebg-preview (1).png" alt="Plant 1">
-            <h3>พีทูเนียร์</h3>
-            <p>฿350</p>
-        </div>
-        <!-- Example of Product Card 2 -->
-        <div class="product-card">
-            <img src="Pic/0-0-8634153-removebg-preview.png" alt="Plant 2">
-            <h3>เข็มสามสี</h3>
-            <p>฿250</p>
-        </div>
-        <!-- Example of Product Card 3 -->
-        <div class="product-card">
-            <img src="Pic/carolyn-v-9xhtgJxjrS8-unsplash-removebg-preview.png" alt="Plant 3">
-            <h3>เดซี่</h3>
-            <p>฿500</p>
-        </div>
-        <!-- Add more product cards here -->
-        <div class="product-card">
-            <img src="Pic/วิธีกัดสีบอนสี-เร่งสีบอนสี-เลี้ยงบอนสีให้สวย-removebg-preview (1).png" alt="Plant 3">
-            <h3>บอนสี</h3>
-            <p>฿500</p>
-        </div>
-        <div class="product-card">
-            <img src="Pic/72206194-fe19-4462-80ff-8d0335d21d5b-removebg-preview.png" alt="Plant 3">
-            <h3>ว่านเศรษฐีเรือนใน</h3>
-            <p>฿500</p>
-        </div>
-    </div>
+    <div id="product-grid" class="product-grid"></div>
+
+    <script>
+        const products = [
+            { name: 'พีทูเนียร์', price: 350, img: 'Pic/gko80h-removebg-preview (1).png', category: 'indoor' },
+            { name: 'เข็มสามสี', price: 250, img: 'Pic/0-0-8634153-removebg-preview.png', category: 'outdoor' },
+            { name: 'เดซี่', price: 500, img: 'Pic/carolyn-v-9xhtgJxjrS8-unsplash-removebg-preview.png', category: 'outdoor' },
+            { name: 'บอนสี', price: 500, img: 'Pic/วิธีกัดสีบอนสี-เร่งสีบอนสี-เลี้ยงบอนสีให้สวย-removebg-preview (1).png', category: 'succulents' },
+            { name: 'ว่านเศรษฐีเรือนใน', price: 500, img: 'Pic/72206194-fe19-4462-80ff-8d0335d21d5b-removebg-preview.png', category: 'indoor' }
+        ];
+
+        let cartCount = 0;
+
+        const grid = document.getElementById('product-grid');
+        const searchBar = document.getElementById('search-bar');
+        const categoryFilter = document.getElementById('category-filter');
+        const cartCountElement = document.getElementById('cart-count');
+
+        function renderProducts(filteredProducts) {
+            grid.innerHTML = '';
+            filteredProducts.forEach(product => {
+                grid.innerHTML += `
+                    <div class="product-card">
+                        <img src="${product.img}" alt="ภาพต้นไม้ ${product.name}">
+                        <h3>${product.name}</h3>
+                        <p>฿${product.price}</p>
+                        <button onclick="addToCart()">Add to Cart</button>
+                    </div>`;
+            });
+        }
+
+        function addToCart() {
+            cartCount++;
+            cartCountElement.textContent = cartCount;
+        }
+
+        function filterProducts() {
+            const searchQuery = searchBar.value.toLowerCase();
+            const selectedCategory = categoryFilter.value;
+            const filteredProducts = products.filter(product => {
+                const matchesCategory = selectedCategory === 'all' || product.category === selectedCategory;
+                const matchesSearch = product.name.toLowerCase().includes(searchQuery);
+                return matchesCategory && matchesSearch;
+            });
+            renderProducts(filteredProducts);
+        }
+
+        searchBar.addEventListener('input', filterProducts);
+        categoryFilter.addEventListener('change', filterProducts);
+
+        renderProducts(products);
+    </script>
 
     <!-- Footer -->
     <footer>
