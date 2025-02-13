@@ -1,0 +1,232 @@
+<Cart html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Sprout - ร้านต้นไม้หลากหลายชนิด พร้อมการจัดส่งถึงบ้าน">
+    <title>รถเข็น - Sprout</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            font-family: 'Poppins', sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            width: 100%;
+        }
+
+        .cart-container {
+            width: 100%;
+            max-width: 900px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #ffffff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            overflow: hidden;
+            box-sizing: border-box;
+        }
+
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 15px;
+            border-bottom: 1px solid #ddd;
+            align-items: center;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .cart-item img {
+            width: 80px;
+            height: 80px;
+            border-radius: 8px;
+            object-fit: cover;
+        }
+
+        .cart-item .item-details {
+            flex-grow: 1;
+            margin-left: 15px;
+        }
+
+        .cart-item h3 {
+            margin: 0;
+            font-size: 18px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .cart-item p {
+            margin: 5px 0;
+            font-size: 16px;
+            color: #4CAF50;
+        }
+
+        .cart-item button {
+            background-color: #E74C3C;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+
+        .cart-item button:hover {
+            background-color: #C0392B;
+            transform: scale(1.1);
+        }
+
+        .total-price {
+            text-align: right;
+            padding: 20px;
+            font-size: 22px;
+            font-weight: 600;
+            color: #333;
+            border-top: 2px solid #ddd;
+        }
+
+        .action-buttons {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .action-buttons button {
+            flex: 1;
+            margin: 0 10px;
+            padding: 15px;
+            background-color: #4CAF50;
+            color: white;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.3s;
+            text-align: center;
+        }
+
+        .action-buttons button:first-child {
+            background-color: #3498DB;
+        }
+
+        .action-buttons button:hover {
+            transform: scale(1.05);
+        }
+
+        .action-buttons button:active {
+            transform: scale(0.98);
+        }
+
+        .action-buttons button:first-child:hover {
+            background-color: #2980B9;
+        }
+
+        .action-buttons button:last-child:hover {
+            background-color: #45a049;
+        }
+
+        .empty-cart-message {
+            text-align: center;
+            margin-top: 50px;
+            font-size: 18px;
+            color: #888;
+        }
+
+        .payment-success {
+            text-align: center;
+            font-size: 24px;
+            color: #4CAF50;
+            margin-top: 50px;
+        }
+    </style>
+</head>
+<body>
+    <div class="cart-container">
+        <div id="cart-items"></div>
+        <div class="total-price">
+            <p>รวม: <span id="total-price">฿0</span></p>
+        </div>
+
+        <!-- กล่องปุ่มดำเนินการ -->
+        <div class="action-buttons">
+            <button onclick="window.location.href='<!DOCTYPE html>.html'">กลับสู่หน้าแรก</button>
+            <button onclick="checkout()">ดำเนินการชำระเงิน</button>
+        </div>
+
+        <!-- ข้อความการชำระเงินสำเร็จ -->
+        <div id="payment-success" class="payment-success" style="display: none;">
+            ชำระเงินสำเร็จ! ขอบคุณที่ช็อปปิ้งกับเรา
+        </div>
+    </div>
+
+    <script>
+        let cart = JSON.parse(localStorage.getItem('cart')) || [];
+        const cartItemsContainer = document.getElementById('cart-items');
+        const totalPriceElement = document.getElementById('total-price');
+        const paymentSuccessMessage = document.getElementById('payment-success');
+
+        function renderCart() {
+            cartItemsContainer.innerHTML = '';  // Clear existing items
+            if (cart.length === 0) {
+                cartItemsContainer.innerHTML = `<div class="empty-cart-message">รถเข็นของคุณว่างเปล่า</div>`;
+                totalPriceElement.textContent = '฿0';
+                return;
+            }
+
+            let totalPrice = 0;
+            cart.forEach(item => {
+                cartItemsContainer.innerHTML += `
+                    <div class="cart-item">
+                        <img src="${item.img}" alt="${item.name}">
+                        <div class="item-details">
+                            <h3><a href="product-detail.html?product=${encodeURIComponent(item.name)}">${item.name}</a></h3>
+                            <p>฿${item.price}</p>
+                        </div>
+                        <button onclick="removeFromCart('${item.name}')">ลบ</button>
+                    </div>`;
+                totalPrice += item.price;
+            });
+
+            totalPriceElement.textContent = `฿${totalPrice}`;
+        }
+
+        function removeFromCart(productName) {
+            cart = cart.filter(item => item.name !== productName);
+            localStorage.setItem('cart', JSON.stringify(cart));
+            renderCart();
+        }
+
+        // ฟังก์ชันชำระเงิน
+        function checkout() {
+            if (cart.length === 0) {
+                alert("กรุณาเพิ่มสินค้าในรถเข็นก่อนดำเนินการชำระเงิน");
+                return;
+            }
+
+            // รีเซ็ตตะกร้าหลังจากการชำระเงิน
+            localStorage.removeItem('cart');
+
+            // แสดงข้อความชำระเงินสำเร็จ
+            paymentSuccessMessage.style.display = 'block';
+
+            // ใช้ setTimeout เพื่อกลับไปหน้าแรกหลังจาก 3 วินาที
+            setTimeout(() => {
+                window.location.href = '<!DOCTYPE html>.html';  // เปลี่ยน URL ไปที่หน้าแรก
+            }, 3000);  // หน่วงเวลา 3 วินาที
+        }
+
+        renderCart();
+    </script>
+</body>
+</html>

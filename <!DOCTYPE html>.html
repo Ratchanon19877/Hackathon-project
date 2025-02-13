@@ -156,10 +156,35 @@
             border-radius: 5px;
             cursor: pointer;
             font-size: 16px;
+            transition: background-color 0.3s, transform 0.3s, box-shadow 0.3s;
         }
 
         .product-card button:hover {
             background-color: #45a049;
+            transform: scale(1.05);
+        }
+
+        .product-card button:active {
+            background-color: #388E3C;
+            transform: scale(0.95);
+        }
+
+        /* เพิ่ม animation เมื่อคลิก */
+        .product-card button.clicked {
+            animation: pulse 0.6s ease-out;
+        }
+
+        /* กำหนด animation ของปุ่ม */
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.2);
+            }
+            100% {
+                transform: scale(1);
+            }
         }
 
         /* Footer styling */
@@ -190,7 +215,7 @@
     <!-- Header with Logo and Name -->
     <header>
         <div class="header-logo">
-            <a href="Homepage.html"><img src="Pic/Logo.png" alt="โลโก้ Sprout"></a>
+            <a href="<!DOCTYPE html>.html"><img src="Pic/Logo.png" alt="โลโก้ Sprout"></a>
             <h1>Sprout</h1>
         </div>
 
@@ -207,9 +232,9 @@
 
     <!-- Top navigation bar -->
     <div class="top-nav">
-        <a href="Profile.html">👤</a> <!-- ไปหน้าโปรไฟล์ -->
+        <a href="<profile.html>.html">👤</a> <!-- ไปหน้าโปรไฟล์ -->
         <a href="#">🌱</a> <!-- Plant Icon -->
-        <a href="#" id="cart">🛒<span class="cart-count" id="cart-count">0</span></a>
+        <a href="<Cart html>.html" id="cart">🛒<span class="cart-count" id="cart-count">0</span></a>
     </div>
 
     <!-- Search Bar (under the top navigation) -->
@@ -246,14 +271,27 @@
                         </div>
                         <h3>${product.name}</h3>
                         <p>฿${product.price}</p>
-                        <button onclick="addToCart()">Add to Cart</button>
+                        <button onclick="addToCart('${product.name}', '${product.img}', ${product.price}, event)">Add to Cart</button>
                     </div>`;
             });
         }
 
-        function addToCart() {
-            cartCount++;
+        function addToCart(name, img, price, event) {
+            let cart = JSON.parse(localStorage.getItem('cart')) || [];
+            cart.push({ name, img, price });
+            localStorage.setItem('cart', JSON.stringify(cart));
+
+            cartCount = cart.length;
             cartCountElement.textContent = cartCount;
+
+            // เพิ่มการแอนิเมชันให้กับปุ่ม Add to Cart
+            const button = event.target;
+            button.classList.add('clicked');
+
+            // ลบคลาส clicked หลังจากแอนิเมชันเสร็จสิ้น
+            setTimeout(() => {
+                button.classList.remove('clicked');
+            }, 600); // ระยะเวลาเท่ากับเวลาแอนิเมชัน (0.6 วินาที)
         }
 
         function filterProducts() {
